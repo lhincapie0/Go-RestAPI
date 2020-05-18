@@ -25,6 +25,7 @@ const COUNTRY string = "Country"
 const ORGANIZATION string = "Organization"
 
 func GetDomainInfo(ctx *fasthttp.RequestCtx) {
+	fmt.Println("SENDING INFO")
 	ConsumeSSLApi(ctx.UserValue("server"))
 	resp := BuildDomainResponse()
 	obj, err := json.Marshal(resp)
@@ -92,7 +93,7 @@ func HandleServerInfo() []ds.Server {
 //CODE COPIED FROM THE  github.com/badoux/goscraper EXAMPLE
 func GetHtmlInfo(url string) (string, string) {
 	url = "http://" + url
-	s, err := goscraper.Scrape(url, 1)
+	s, err := goscraper.Scrape(url, 5)
 	if err != nil {
 		fmt.Println(err)
 	}
