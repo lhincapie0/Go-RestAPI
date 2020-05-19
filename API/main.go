@@ -1,10 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/buaazp/fasthttprouter"
+	"github.com/lhincapie0/Go-RestAPI/API/database"
 	"github.com/lhincapie0/Go-RestAPI/API/infoHandler"
 	"github.com/valyala/fasthttp"
 )
@@ -17,8 +19,14 @@ func GetDomainInfo(ctx *fasthttp.RequestCtx) {
 
 //GetSearchHistory
 func GetSearchHistory(ctx *fasthttp.RequestCtx) {
-	fmt.Fprintf(ctx, "Loading Search History")
+	infoHandler.GetDomainsHistory(ctx)
+	//	infoHandler.getDomainsHistory()
+}
 
+func startDB() {
+	var b *sql.DB
+	b = database.ConnectDB()
+	infoHandler.HttpInfoHandler(b)
 }
 
 //Endpoints calls
@@ -27,6 +35,7 @@ func main() {
 	router := fasthttprouter.New()
 	router.GET("/serverInfo/:server", GetDomainInfo)
 	router.GET("/searchHistory/", GetSearchHistory)
+	startDB()
 
-	log.Fatal(fasthttp.ListenAndServe(":8080", router.Handler))
+	log.Fatal(fasthttp.ListenAndServe(":8081", router.Handler))
 }

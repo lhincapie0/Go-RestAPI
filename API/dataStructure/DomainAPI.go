@@ -1,13 +1,13 @@
 package dataStructure
 
 type DomainInfo struct {
-	Servers []Server `json:"servers"`
-	//	SeversChanged   bool     `json:"servers_changed"`
-	SslGrade string `json:"ssl_grade"`
-	//	PreviousSslGrade bool   `json:"previous_ssl_grade"`
-	Logo  string `json:"logo"`
-	Title string `json:"title"`
-	//	IsDown bool   `json:"is_down"`
+	Servers          []Server `json:"servers"`
+	SeversChanged    bool     `json:"servers_changed"`
+	SslGrade         string   `json:"ssl_grade"`
+	PreviousSslGrade string   `json:"previous_ssl_grade"`
+	Logo             string   `json:"logo"`
+	Title            string   `json:"title"`
+	IsDown           bool     `json:"is_down"`
 }
 
 type Server struct {
@@ -15,4 +15,8 @@ type Server struct {
 	Grade     string `json:"grade"`
 	Country   string `json:"country"`
 	Owner     string `json:"owner"`
+}
+
+type HostRepo struct {
+	Items []string `json:"items"`
 }
