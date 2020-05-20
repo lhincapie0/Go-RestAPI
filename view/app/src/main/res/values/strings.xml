@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">RestApi</string>
+    <string name="title">SERVER INFORMATION FINDER</string>
+    <string name="search">SEARCH A DOMAIN</string>
+    <string name="getInfo">GET INFORMATION</string>
+    <string name="history">SEARCH HISTORY</string>
+    <string name="titleTV">Title:</string>
+    <string name="serversChangedTV">Have the servers changed is the last hour or less?</string>
+    <string name="sslGradeTV">Ssl Grade:</string>
+    <string name="prevSslGradeTV">Previous Ssl Grade:</string>
+    <string name="serversDown">Is the server down?</string>
+    <string name="domainNameHint">Enter the domain you want to search. Ej: facebook.com</string>
+
+    <string name ="ipAddress"> Ip Address:</string>
+
+    <string name="owner">Owner:</string>
+    <string name="country">Country:</string>
+    <string name="waiting">Waiting for response... This can take a few minutes. </string>
+
+
+
+
 </resources>

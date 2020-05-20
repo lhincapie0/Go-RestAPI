@@ -31,6 +31,7 @@ const serverInfoPath string = "https://api.ssllabs.com/api/v3/analyze?host="
 const param1 string = "&onCache=on&max-age=1"
 const param2 string = "&startNew=on"
 const COUNTRY string = "Country"
+const READY string = "READY"
 
 var fromCache bool
 
@@ -41,6 +42,9 @@ func HttpInfoHandler(db *sql.DB) {
 }
 
 func GetDomainInfo(ctx *fasthttp.RequestCtx) {
+	fmt.Println("Request readed")
+	//borrar ahora
+	fmt.Println(getStringInterface(ctx.UserValue("server")))
 	ConsumeSSLApi(ctx.UserValue("server"), param1)
 	resp := BuildDomainResponse()
 	database.AddDomain(connectionDB, getStringInterface(ctx.UserValue("server")), resp.SslGrade)
@@ -54,6 +58,8 @@ func GetDomainInfo(ctx *fasthttp.RequestCtx) {
 	}
 
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+	fmt.Println("Information send")
+
 	if err := json.NewEncoder(ctx).Encode(resp); err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 	}
@@ -95,6 +101,7 @@ func ConsumeSSLApi(server interface{}, params string) {
 func BuildDomainResponse() ds.DomainInfo {
 	servers := HandleServerInfo()
 	logo, title := GetHtmlInfo(domain.Host)
+	fmt.Println("BUILDING DOMAAIN")
 	var isDown bool
 	var changed bool
 	var previousSsl string
@@ -126,6 +133,8 @@ func evaluateChanges(host string, previousServers []ds.Server, actualSslGrade st
 	var changes bool = false
 	//domain search for one hour or less saved in domainCheck
 	domainCheck = domain
+	fmt.Println("EVALUATING CHANGES IN DOMAAIN")
+
 	//actual (now) search saved in domain
 	//Param2 indicates that the result has to be a new one and not the one in the cache
 	ConsumeSSLApi(host, param2)
@@ -134,9 +143,7 @@ func evaluateChanges(host string, previousServers []ds.Server, actualSslGrade st
 	if len(servers) != len(previousServers) {
 		changes = true
 	} else {
-		for i, s := range servers {
-			fmt.Println(s)
-			fmt.Println("PREVIOUS", previousServers[i])
+		for _, s := range servers {
 			if !ServerExists(previousServers, s) {
 				changes = true
 			}
@@ -170,11 +177,24 @@ func HandleServerInfo() []ds.Server {
 //CODE COPIED FROM THE  github.com/badoux/goscraper EXAMPLE
 func GetHtmlInfo(url string) (string, string) {
 	url = "http://" + url
+	var icon string
+	var title string
 	s, err := goscraper.Scrape(url, 5)
-	if err != nil {
-		return "No HTML", "No HTML"
+	if err == nil {
+
 	}
-	return s.Preview.Icon, s.Preview.Title
+	if s.Preview.Icon == "" {
+		icon = "No icon"
+	} else {
+		icon = s.Preview.Icon
+	}
+
+	if s.Preview.Title == "" {
+		title = "No icon"
+	} else {
+		title = s.Preview.Title
+	}
+	return icon, title
 }
 
 func WhoIs(ip string) (string, string) {
