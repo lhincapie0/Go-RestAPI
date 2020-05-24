@@ -60,7 +60,7 @@
         android:layout_height="0dp"
         android:background="@drawable/bg2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/waitingTV"
+        app:layout_constraintTop_toBottomOf="@+id/errorTV"
         tools:layout_editor_absoluteX="16dp">
 
         <ImageView
@@ -253,9 +253,16 @@
             android:background="@android:color/white"
             android:dividerHeight="0sp"
             android:fastScrollAlwaysVisible="true"
+            android:fastScrollEnabled="true"
+            android:isScrollContainer="true"
+            android:keepScreenOn="true"
+            android:overScrollMode="always"
             android:scrollbarAlwaysDrawHorizontalTrack="true"
-            app:layout_constraintTop_toBottomOf="@+id/textView4"
-            tools:layout_editor_absoluteX="-16dp" />
+            android:verticalScrollbarPosition="defaultPosition"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -288,5 +295,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
+    <TextView
+        android:id="@+id/errorTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/lato"
+        android:text="TextView"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/waitingTV" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

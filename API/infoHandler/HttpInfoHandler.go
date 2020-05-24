@@ -32,6 +32,7 @@ const param1 string = "&onCache=on&max-age=1"
 const param2 string = "&startNew=on"
 const COUNTRY string = "Country"
 const READY string = "READY"
+const INVALID_DOMAIN = "Invalid domain"
 
 var fromCache bool
 
@@ -39,34 +40,45 @@ const ORGANIZATION string = "Organization"
 
 func HttpInfoHandler(db *sql.DB) {
 	connectionDB = db
+	basicCheck()
 }
 
+func basicCheck() {
+
+}
 func GetDomainInfo(ctx *fasthttp.RequestCtx) {
-	fmt.Println("Request readed")
-	//borrar ahora
-	fmt.Println(getStringInterface(ctx.UserValue("server")))
+
 	ConsumeSSLApi(ctx.UserValue("server"), param1)
-	resp := BuildDomainResponse()
-	database.AddDomain(connectionDB, getStringInterface(ctx.UserValue("server")), resp.SslGrade)
+	dom := getStringInterface(ctx.UserValue("server"))
+	if len(domain.Errors) > 0 {
+		fmt.Println(domain.Errors)
+		json.NewEncoder(ctx).Encode(INVALID_DOMAIN)
 
-	obj, err := json.Marshal(resp)
-	var obj2 string
-	if err != nil {
-		json.Unmarshal([]byte(obj), &obj2)
-		fmt.Fprintf(ctx, obj2)
-
-	}
-
-	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
-	fmt.Println("Information send")
-
-	if err := json.NewEncoder(ctx).Encode(resp); err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+	} else {
+		resp := BuildDomainResponse(dom)
+		database.AddDomain(connectionDB, getStringInterface(ctx.UserValue("server")), resp.SslGrade)
+		ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+		fmt.Println("Information sent")
+		if err := json.NewEncoder(ctx).Encode(resp); err != nil {
+			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		}
 	}
 
 }
 
-//PACKAGE GET DATA
+func checkIsDown(dom string) bool {
+	var st string = "http://www." + dom
+	response, _ := http.Get(st)
+	fmt.Println(st)
+	fmt.Println(response)
+
+	if response != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
 func ConsumeSSLApi(server interface{}, params string) {
 	serverName := getStringInterface(server)
 	response, err := http.Get(serverInfoPath + serverName + params)
@@ -98,7 +110,8 @@ func ConsumeSSLApi(server interface{}, params string) {
 	}
 }
 
-func BuildDomainResponse() ds.DomainInfo {
+func BuildDomainResponse(dom string) ds.DomainInfo {
+	fmt.Println(dom)
 	servers := HandleServerInfo()
 	logo, title := GetHtmlInfo(domain.Host)
 	fmt.Println("BUILDING DOMAAIN")
@@ -107,16 +120,14 @@ func BuildDomainResponse() ds.DomainInfo {
 	var previousSsl string
 	var actualSslGrade string
 	actualSslGrade = calculateSslGrade(servers)
-	isDown = false
+	isDown = checkIsDown(dom)
 	if fromCache {
 		previousSsl, changed = evaluateChanges(domain.Host, servers, actualSslGrade)
 	} else {
 		changed = false
 		previousSsl = actualSslGrade
 	}
-	if len(domain.Errors) > 0 {
-		isDown = true
-	}
+
 	domainResponse := ds.DomainInfo{
 		Servers:          servers,
 		SeversChanged:    changed,

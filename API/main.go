@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/buaazp/fasthttprouter"
@@ -31,7 +30,6 @@ func startDB() {
 
 //Endpoints calls
 func main() {
-	fmt.Println("Hello world")
 	router := fasthttprouter.New()
 	router.GET("/serverInfo/:server", GetDomainInfo)
 	router.GET("/searchHistory/", GetSearchHistory)

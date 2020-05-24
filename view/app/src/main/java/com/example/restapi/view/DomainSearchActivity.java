@@ -18,7 +18,7 @@ public class DomainSearchActivity extends AppCompatActivity {
     private DomainSearchController controller;
     private Button searchDomainBtn;
     private EditText domainET;
-    private TextView domainTitleTV, domainSslGradeTV, domainIsDownTV, domainPreviousSslGradeTV, domainServersChangedTV, waitingTV;
+    private TextView domainTitleTV, errorTV,domainSslGradeTV, domainIsDownTV, domainPreviousSslGradeTV, domainServersChangedTV, waitingTV;
     private ImageView domainIV;
     private ListView serversLV;
     private ConstraintLayout domainInfoCL;
@@ -39,10 +39,15 @@ public class DomainSearchActivity extends AppCompatActivity {
         domainIV = findViewById(R.id.domainIV);
         serversLV = findViewById(R.id.serverLV);
         waitingTV = findViewById(R.id.waitingTV);
+        errorTV = findViewById(R.id.errorTV);
         domainInfoCL = findViewById(R.id.domainInfoCL);
         controller = new DomainSearchController(this);
     }
 
+    public TextView getErrorTV()
+    {
+        return errorTV;
+    }
     public TextView getWaitingTV() {
         return waitingTV;
     }

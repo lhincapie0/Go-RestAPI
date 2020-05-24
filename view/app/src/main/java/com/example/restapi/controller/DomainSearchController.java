@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static com.example.restapi.util.Constants.ENDPOINT1;
+import static com.example.restapi.util.Constants.MESSAGE_ERROR;
 import static com.example.restapi.util.Constants.SEARCH_CALLBACK;
 
 public class DomainSearchController implements View.OnClickListener, HTTPSWebUtilDomi.OnResponseListener{
@@ -52,6 +53,8 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
                 makeRequest2(domain);
                 activity.getSearchDomainBtn().setEnabled(false);
                 activity.getWaitingTV().setVisibility(View.VISIBLE);
+                activity.getErrorTV().setVisibility(View.GONE);
+
             }
         }
     }
@@ -75,30 +78,44 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
         switch (callbackID) {
             case SEARCH_CALLBACK: {
                 Log.d("RESPONSE ---->",response);
-                Gson gson = new Gson();
-                Domain domain = gson.fromJson(response, Domain.class);
-                activity.runOnUiThread(
-                        () ->
-                        {
-                            Log.d("->>>>>>>>>","GOT INFORMATION");
-                            Log.e("->>>>>>>>>","GOT INFORMATION");
-                            activity.getWaitingTV().setVisibility(View.GONE);
-
-                            activity.getDomainInfoCL().setVisibility(View.VISIBLE);
-                            activity.getDomainTitleTV().setText(domain.getTitle());
-                            activity.getDomainSslGradeTV().setText(domain.getSsl_grade());
-                            activity.getDomainPreviousSslGradeTV().setText(domain.getPrevious_ssl_grade());
-                            activity.getDomainIsDownTV().setText(domain.isIs_down()+"");
-                            activity.getDomainServersChangedTV().setText(domain.isServers_changed()+"");
-                            Glide.with(activity).load(domain.getLogo() ).centerCrop().into(activity.getDomainIV());
-                            serverAdapter = new ServerAdapter();
-                            activity.getServersLV().setAdapter(serverAdapter);
-                            serverAdapter.setServers(domain.getServers());
-                            activity.getSearchDomainBtn().setEnabled(true);
+                if(response.equals(MESSAGE_ERROR))
+                {
+                    activity.runOnUiThread(
+                            () ->
+                            {
+                                activity.getErrorTV().setText(MESSAGE_ERROR);
+                                activity.getErrorTV().setVisibility(View.VISIBLE);
+                            }
+                    );
+                }else
+                {
+                    Gson gson = new Gson();
+                    Domain domain = gson.fromJson(response, Domain.class);
+                    activity.runOnUiThread(
+                            () ->
+                            {
 
 
-                        }
-                );
+                                    activity.getWaitingTV().setVisibility(View.GONE);
+                                    activity.getErrorTV().setVisibility(View.GONE);
+
+                                    activity.getDomainInfoCL().setVisibility(View.VISIBLE);
+                                    activity.getDomainTitleTV().setText(domain.getTitle());
+                                    activity.getDomainSslGradeTV().setText(domain.getSsl_grade());
+                                    activity.getDomainPreviousSslGradeTV().setText(domain.getPrevious_ssl_grade());
+                                    activity.getDomainIsDownTV().setText(domain.isIs_down()+"");
+                                    activity.getDomainServersChangedTV().setText(domain.isServers_changed()+"");
+                                    Glide.with(activity).load(domain.getLogo() ).centerCrop().into(activity.getDomainIV());
+                                    serverAdapter = new ServerAdapter();
+                                    activity.getServersLV().setAdapter(serverAdapter);
+                                    serverAdapter.setServers(domain.getServers());
+                                    activity.getSearchDomainBtn().setEnabled(true);
+
+                            }
+                    );
+                }
+
+
                 break;
             }
         }
