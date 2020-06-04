@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.restapi.R;
@@ -22,6 +23,7 @@ public class DomainSearchActivity extends AppCompatActivity {
     private ImageView domainIV;
     private ListView serversLV;
     private ConstraintLayout domainInfoCL;
+    private ProgressBar progressBar;
 
 
 
@@ -41,7 +43,12 @@ public class DomainSearchActivity extends AppCompatActivity {
         waitingTV = findViewById(R.id.waitingTV);
         errorTV = findViewById(R.id.errorTV);
         domainInfoCL = findViewById(R.id.domainInfoCL);
+        progressBar = findViewById(R.id.progressBar);
         controller = new DomainSearchController(this);
+    }
+
+    public ProgressBar getProgressBar() {
+        return progressBar;
     }
 
     public TextView getErrorTV()

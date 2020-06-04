@@ -1,5 +1,14 @@
 package dataStructure
 
+type DomainHistory struct {
+	items []DomainHistoryElement `json:"items"`
+}
+
+type DomainHistoryElement struct {
+	Host string     `json:"host"`
+	Info DomainInfo `json:"info"`
+}
+
 type DomainInfo struct {
 	Servers          []Server `json:"servers"`
 	SeversChanged    bool     `json:"servers_changed"`

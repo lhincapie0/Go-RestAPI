@@ -48,12 +48,13 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
             case R.id.searchDomainBtn:
             {
                 activity.getDomainInfoCL().setVisibility(View.GONE);
-
                 String domain = this.activity.getDomainET().getText().toString();
                 makeRequest2(domain);
+
                 activity.getSearchDomainBtn().setEnabled(false);
                 activity.getWaitingTV().setVisibility(View.VISIBLE);
                 activity.getErrorTV().setVisibility(View.GONE);
+
 
             }
         }
@@ -66,6 +67,7 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
 
                     Log.d("->>>>>>>>>","GET INFORMATION FOR: "+ domain);
                     Log.e("->>>>>>>>>","GET INFORMATION FOR: "+ domain);
+
                     utilDomi.GETrequest(SEARCH_CALLBACK,ENDPOINT1+domain);
 
                 }
@@ -94,12 +96,11 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
                     activity.runOnUiThread(
                             () ->
                             {
-
-
                                     activity.getWaitingTV().setVisibility(View.GONE);
                                     activity.getErrorTV().setVisibility(View.GONE);
+                                activity.getProgressBar().setVisibility(View.GONE);
 
-                                    activity.getDomainInfoCL().setVisibility(View.VISIBLE);
+                                activity.getDomainInfoCL().setVisibility(View.VISIBLE);
                                     activity.getDomainTitleTV().setText(domain.getTitle());
                                     activity.getDomainSslGradeTV().setText(domain.getSsl_grade());
                                     activity.getDomainPreviousSslGradeTV().setText(domain.getPrevious_ssl_grade());

@@ -1,13 +1,12 @@
-package infoHandler
+package infohandler
 
 import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strings"
-
 	"net/http"
+	"strings"
 
 	"github.com/badoux/goscraper"
 	"github.com/lhincapie0/Go-RestAPI/API/database"
@@ -26,37 +25,51 @@ var (
 	strContentType     = []byte("Content-Type")
 	strApplicationJSON = []byte("application/json")
 )
+var fromCache bool
 
 const serverInfoPath string = "https://api.ssllabs.com/api/v3/analyze?host="
 const param1 string = "&onCache=on&max-age=1"
 const param2 string = "&startNew=on"
+
+//COUNTRY ... for who is - country
 const COUNTRY string = "Country"
-const READY string = "READY"
-const INVALID_DOMAIN = "Invalid domain"
 
-var fromCache bool
-
+//ORGANIZATION ... for who is - organization
 const ORGANIZATION string = "Organization"
 
-func HttpInfoHandler(db *sql.DB) {
+//READY ... state where the api result is ready to use
+const READY string = "READY"
+
+//INVALID ... error if the input domain is invalidad
+const INVALID string = "Invalid domain"
+
+//FULL ... error if the server is busy
+const FULL string = "Running at full capacity. Please try again later."
+
+//HTTPInfoHandler ... Instantiates the database
+func HTTPInfoHandler(db *sql.DB) {
 	connectionDB = db
-	basicCheck()
 }
 
-func basicCheck() {
-
-}
+//GetDomainInfo ... main method to build the endpoint respond.
 func GetDomainInfo(ctx *fasthttp.RequestCtx) {
-
 	ConsumeSSLApi(ctx.UserValue("server"), param1)
 	dom := getStringInterface(ctx.UserValue("server"))
-	if len(domain.Errors) > 0 {
-		fmt.Println(domain.Errors)
-		json.NewEncoder(ctx).Encode(INVALID_DOMAIN)
-
+	fmt.Println(dom)
+	if len(domain.Errors) > 0 || domain.Status == "ERROR" {
+		fmt.Println("ERRORS  ", domain.Errors)
+		if domain.Status == "ERROR" {
+			json.NewEncoder(ctx).Encode(INVALID)
+		} else if domain.Errors[0].Message == FULL {
+			json.NewEncoder(ctx).Encode(FULL)
+		} else {
+			json.NewEncoder(ctx).Encode("Unknown error")
+		}
 	} else {
+
 		resp := BuildDomainResponse(dom)
-		database.AddDomain(connectionDB, getStringInterface(ctx.UserValue("server")), resp.SslGrade)
+		///	database.AddDomain(connectionDB, getStringInterface(ctx.UserValue("server")), resp.SslGrade)
+		database.AddDomainInfo(connectionDB, getStringInterface(ctx.UserValue("server")), resp)
 		ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
 		fmt.Println("Information sent")
 		if err := json.NewEncoder(ctx).Encode(resp); err != nil {
@@ -94,18 +107,24 @@ func ConsumeSSLApi(server interface{}, params string) {
 		fromCache = true
 
 		for domain.Status != "READY" {
-			response, err := http.Get(serverInfoPath + serverName)
-
-			if err != nil {
-				fmt.Printf("The HTTP request failed with error %s\n", err)
+			if domain.Status == "ERROR" {
+				fmt.Println("error..............")
+				break
 			} else {
-				fromCache = false
+				response, err := http.Get(serverInfoPath + serverName)
 
-				data, _ := ioutil.ReadAll(response.Body)
-				//formatting data into domain variable
-				json.Unmarshal([]byte(data), &domain)
+				if err != nil {
+					fmt.Printf("The HTTP request failed with error %s\n", err)
+				} else {
+					fromCache = false
 
+					data, _ := ioutil.ReadAll(response.Body)
+					//formatting data into domain variable
+					json.Unmarshal([]byte(data), &domain)
+
+				}
 			}
+
 		}
 	}
 }

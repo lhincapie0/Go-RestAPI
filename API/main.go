@@ -6,34 +6,34 @@ import (
 
 	"github.com/buaazp/fasthttprouter"
 	"github.com/lhincapie0/Go-RestAPI/API/database"
-	"github.com/lhincapie0/Go-RestAPI/API/infoHandler"
+	"github.com/lhincapie0/Go-RestAPI/API/infohandler"
 	"github.com/valyala/fasthttp"
 )
 
 //GET DOMAIN INFO
 func GetDomainInfo(ctx *fasthttp.RequestCtx) {
-	infoHandler.GetDomainInfo(ctx)
+	infohandler.GetDomainInfo(ctx)
 
 }
 
 //GetSearchHistory
 func GetSearchHistory(ctx *fasthttp.RequestCtx) {
-	infoHandler.GetDomainsHistory(ctx)
-	//	infoHandler.getDomainsHistory()
+	infohandler.GetDomainsHistory(ctx)
 }
 
 func startDB() {
-	var b *sql.DB
-	b = database.ConnectDB()
-	infoHandler.HttpInfoHandler(b)
+	var db *sql.DB
+	db = database.ConnectDB()
+	infohandler.HTTPInfoHandler(db)
 }
 
-//Endpoints calls
 func main() {
 	router := fasthttprouter.New()
+	startDB()
+
+	//Endpoints calls
 	router.GET("/serverInfo/:server", GetDomainInfo)
 	router.GET("/searchHistory/", GetSearchHistory)
-	startDB()
 
 	log.Fatal(fasthttp.ListenAndServe(":8081", router.Handler))
 }
