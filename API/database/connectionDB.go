@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	ds "github.com/lhincapie0/go-restAPI/API/dataStructure"
 
@@ -14,54 +15,70 @@ import (
 
 const DB_PATH string = "postgresql://lhincapie0@localhost:26257/restapi?sslmode=disable"
 
-func AddDomain(database *sql.DB, host string, sslGrade string) {
-
-	if _, err := database.Exec(
-		"INSERT INTO domains (host, ssllab) VALUES ( '" + host + "', '" + sslGrade + "')"); err != nil {
-		log.Fatal(err)
-	}
-}
-
 func AddDomainInfo(database *sql.DB, host string, domain ds.DomainInfo) {
 	b, _ := json.Marshal(domain.Servers)
 	servers := string(b)
-	fmt.Println(b)
-	if _, err := database.Exec(
-		"INSERT INTO domains (hostName,host,servers, ssllab,is_down) VALUES ( '" + host + "', '" + domain.Title + "', '" + servers + "', '" + domain.SslGrade + "' , " + strconv.FormatBool(domain.IsDown) + ")"); err != nil {
-		log.Fatal(err)
+
+	//ERROR DETECTED FOR TITLES WITH 'S
+	if strings.Contains(domain.Title, "'") {
+		domain.Title = strings.Replace(domain.Title, "'", "", 1)
 	}
-	json.Unmarshal([]byte(servers), &servers)
-	fmt.Println(servers)
+
+	values := "'" + host + "', '" + servers + "','" + strconv.FormatBool(domain.SeversChanged) + "','" + domain.SslGrade + "','" + domain.PreviousSslGrade + "','" + domain.Logo + "','" + domain.Title + "','" + strconv.FormatBool(domain.IsDown) + "'"
+	fmt.Println("VALUES")
+	fmt.Println(values)
+
+	if _, err := database.Exec(
+		"INSERT INTO domains (host,servers, servers_changed, ssl_grade,previous_ssl_grade,logo,title,is_down) VALUES (" + values + ")"); err != nil {
+		log.Fatal(err)
+		fmt.Println("ERROR ERROR")
+	}
+
+	//TO SEND INFORMATION LATER
+	//	json.Unmarshal([]byte(servers), &servers)
 
 }
 
-func GetDomains(database *sql.DB) []string {
-	var hosts []string
-	var host string
+func GetDomains(database *sql.DB) []ds.DomainHistoryElement {
+	//	var host string
 
-	rows, err := database.Query("SELECT host FROM domains;")
+	rows, err := database.Query("SELECT * FROM domains;")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("err")
+		fmt.Println("error 1")
+		return nil
 	}
 	defer rows.Close()
 
+	domains := make([]ds.DomainHistoryElement, 0)
+
 	for rows.Next() {
-		if err := rows.Scan(&host); err != nil {
+		domain := ds.DomainHistoryElement{}
+
+		err := rows.Scan(&domain.Host, &domain.Info.Servers, &domain.Info.SeversChanged, &domain.Info.SslGrade, &domain.Info.PreviousSslGrade, &domain.Info.Logo, &domain.Info.Title, &domain.Info.IsDown)
+		if err != nil {
 			log.Fatal(err)
+
+			return nil
 		}
-		hosts = append(hosts, host)
+
+		domains = append(domains, domain)
+
 	}
-	return hosts
+
+	return domains
 
 }
 
-func addColums(database *sql.DB) {
+func deleteRows(database *sql.DB) {
+	//	var host string
 
-	_, err := database.Exec("ALTER TABLE domains ADD COLUMN hostName string;")
+	_, err := database.Query("DELETE FROM domains;")
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal("err")
+		fmt.Println("error 1")
 	}
-
+	fmt.Println("ELIMINA")
 }
 
 func ConnectDB() *sql.DB {
@@ -70,7 +87,7 @@ func ConnectDB() *sql.DB {
 		log.Fatal("error connecting to the database: ", err)
 	}
 	fmt.Println("database started")
-	addColums(db)
+	//deleteRows(db)
 
 	return db
 

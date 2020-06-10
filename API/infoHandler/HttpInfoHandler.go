@@ -53,22 +53,31 @@ func HTTPInfoHandler(db *sql.DB) {
 
 //GetDomainInfo ... main method to build the endpoint respond.
 func GetDomainInfo(ctx *fasthttp.RequestCtx) {
-	ConsumeSSLApi(ctx.UserValue("server"), param1)
 	dom := getStringInterface(ctx.UserValue("server"))
 	fmt.Println(dom)
+	ConsumeSSLApi(dom, param1)
+
+	//Handling errors
 	if len(domain.Errors) > 0 || domain.Status == "ERROR" {
 		fmt.Println("ERRORS  ", domain.Errors)
+		ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+
 		if domain.Status == "ERROR" {
 			json.NewEncoder(ctx).Encode(INVALID)
+			errorResp := BuildDomainErrorResponse(INVALID)
+			database.AddDomainInfo(connectionDB, dom, errorResp)
+
 		} else if domain.Errors[0].Message == FULL {
+			errorResp := BuildDomainErrorResponse(FULL)
+			database.AddDomainInfo(connectionDB, dom, errorResp)
 			json.NewEncoder(ctx).Encode(FULL)
 		} else {
+			errorResp := BuildDomainErrorResponse("Unknown error")
+			database.AddDomainInfo(connectionDB, dom, errorResp)
 			json.NewEncoder(ctx).Encode("Unknown error")
 		}
 	} else {
-
 		resp := BuildDomainResponse(dom)
-		///	database.AddDomain(connectionDB, getStringInterface(ctx.UserValue("server")), resp.SslGrade)
 		database.AddDomainInfo(connectionDB, getStringInterface(ctx.UserValue("server")), resp)
 		ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
 		fmt.Println("Information sent")
@@ -80,10 +89,10 @@ func GetDomainInfo(ctx *fasthttp.RequestCtx) {
 }
 
 func checkIsDown(dom string) bool {
-	var st string = "http://www." + dom
+	//	var st string = "http://www." + dom
+	var st string = "https://www." + dom
+	fmt.Println("IS DOWN?")
 	response, _ := http.Get(st)
-	fmt.Println(st)
-	fmt.Println(response)
 
 	if response != nil {
 		return false
@@ -92,45 +101,55 @@ func checkIsDown(dom string) bool {
 	}
 }
 
-func ConsumeSSLApi(server interface{}, params string) {
-	serverName := getStringInterface(server)
+func ConsumeSSLApi(serverName string, params string) {
 	response, err := http.Get(serverInfoPath + serverName + params)
 	fromCache = false
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-	} else {
+		return
+	}
 
+	data, _ := ioutil.ReadAll(response.Body)
+	fromCache = true
+	//formatting data into domain variable
+	json.Unmarshal([]byte(data), &domain)
+	fromCache = true
+
+	for domain.Status != "READY" {
+		if domain.Status == "ERROR" {
+			fmt.Println("error..............")
+			break
+		}
+		response, err := http.Get(serverInfoPath + serverName)
+
+		if err != nil {
+			fmt.Printf("The HTTP request failed with error %s\n", err)
+			break
+		}
+
+		fromCache = false
 		data, _ := ioutil.ReadAll(response.Body)
-		fromCache = true
 		//formatting data into domain variable
 		json.Unmarshal([]byte(data), &domain)
-		fromCache = true
 
-		for domain.Status != "READY" {
-			if domain.Status == "ERROR" {
-				fmt.Println("error..............")
-				break
-			} else {
-				response, err := http.Get(serverInfoPath + serverName)
-
-				if err != nil {
-					fmt.Printf("The HTTP request failed with error %s\n", err)
-				} else {
-					fromCache = false
-
-					data, _ := ioutil.ReadAll(response.Body)
-					//formatting data into domain variable
-					json.Unmarshal([]byte(data), &domain)
-
-				}
-			}
-
-		}
 	}
+
+}
+
+func BuildDomainErrorResponse(error string) ds.DomainInfo {
+	domainResponse := ds.DomainInfo{
+		Servers:          nil,
+		SeversChanged:    false,
+		SslGrade:         "",
+		PreviousSslGrade: "",
+		Logo:             "ERROR",
+		Title:            error,
+		IsDown:           true,
+	}
+	return domainResponse
 }
 
 func BuildDomainResponse(dom string) ds.DomainInfo {
-	fmt.Println(dom)
 	servers := HandleServerInfo()
 	logo, title := GetHtmlInfo(domain.Host)
 	fmt.Println("BUILDING DOMAAIN")
@@ -146,7 +165,6 @@ func BuildDomainResponse(dom string) ds.DomainInfo {
 		changed = false
 		previousSsl = actualSslGrade
 	}
-
 	domainResponse := ds.DomainInfo{
 		Servers:          servers,
 		SeversChanged:    changed,
@@ -156,6 +174,7 @@ func BuildDomainResponse(dom string) ds.DomainInfo {
 		Title:            title,
 		IsDown:           isDown,
 	}
+	fmt.Println("RESPONSE RETURNED")
 	return domainResponse
 }
 
@@ -201,16 +220,21 @@ func HandleServerInfo() []ds.Server {
 		}
 		servers = append(servers, s)
 	}
+	fmt.Println("SERVERS BUILT")
 	return servers
 }
 
 //CODE COPIED FROM THE  github.com/badoux/goscraper EXAMPLE
 func GetHtmlInfo(url string) (string, string) {
+	fmt.Println("HTML INFO")
 	url = "http://" + url
 	var icon string
 	var title string
 	s, err := goscraper.Scrape(url, 5)
-	if err == nil {
+	if err != nil {
+		icon = "No icon"
+		title = "No title"
+		return icon, title
 
 	}
 	if s.Preview.Icon == "" {
@@ -220,7 +244,7 @@ func GetHtmlInfo(url string) (string, string) {
 	}
 
 	if s.Preview.Title == "" {
-		title = "No icon"
+		title = "No Title"
 	} else {
 		title = s.Preview.Title
 	}
@@ -228,6 +252,7 @@ func GetHtmlInfo(url string) (string, string) {
 }
 
 func WhoIs(ip string) (string, string) {
+	fmt.Println("WHO IS FOR: ", ip)
 	result, err := whois.Whois(ip)
 	if err == nil {
 		indexCountry := findIndex(result, COUNTRY)
@@ -278,20 +303,20 @@ func findIndex(result string, str string) int {
 }
 
 func GetDomainsHistory(ctx *fasthttp.RequestCtx) {
-	var hosts []string
-	hosts = database.GetDomains(connectionDB)
-	repo := ds.HostRepo{
-		Items: hosts,
-	}
+	var domains []ds.DomainHistoryElement
 
-	obj, err := json.Marshal(repo)
+	domains = database.GetDomains(connectionDB)
+	history := ds.DomainHistory{
+		Items: domains,
+	}
+	obj, err := json.Marshal(history)
 	var obj2 string
 	if err != nil {
 		json.Unmarshal([]byte(obj), &obj2)
 		fmt.Fprintf(ctx, obj2)
 	}
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
-	if err := json.NewEncoder(ctx).Encode(repo); err != nil {
+	if err := json.NewEncoder(ctx).Encode(history); err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 	}
 

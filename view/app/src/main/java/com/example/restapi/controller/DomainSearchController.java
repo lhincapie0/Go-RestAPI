@@ -1,9 +1,7 @@
 package com.example.restapi.controller;
 
-import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 
 import com.bumptech.glide.Glide;
 import com.example.restapi.R;
@@ -12,15 +10,7 @@ import com.example.restapi.util.HTTPSWebUtilDomi;
 import com.example.restapi.view.DomainSearchActivity;
 import com.google.gson.Gson;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import static com.example.restapi.util.Constants.ENDPOINT1;
-import static com.example.restapi.util.Constants.MESSAGE_ERROR;
 import static com.example.restapi.util.Constants.SEARCH_CALLBACK;
 
 public class DomainSearchController implements View.OnClickListener, HTTPSWebUtilDomi.OnResponseListener{
@@ -29,6 +19,7 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
     private HTTPSWebUtilDomi utilDomi;
     private ServerAdapter serverAdapter;
 
+    private Domain domain;
 
     public DomainSearchController(DomainSearchActivity activity){
         this.activity = activity;
@@ -48,11 +39,12 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
             case R.id.searchDomainBtn:
             {
                 activity.getDomainInfoCL().setVisibility(View.GONE);
-                String domain = this.activity.getDomainET().getText().toString();
-                makeRequest2(domain);
 
+                String domain = this.activity.getDomainET().getText().toString();
+                makeRequest(domain);
                 activity.getSearchDomainBtn().setEnabled(false);
                 activity.getWaitingTV().setVisibility(View.VISIBLE);
+                activity.getProgressBar().setVisibility(View.VISIBLE);
                 activity.getErrorTV().setVisibility(View.GONE);
 
 
@@ -60,7 +52,7 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
         }
     }
 
-    public void makeRequest2(String domain){
+    public void makeRequest(String domain){
         new Thread(
                 () ->{
                     activity.getDomainInfoCL().setVisibility(View.GONE);
@@ -79,47 +71,57 @@ public class DomainSearchController implements View.OnClickListener, HTTPSWebUti
     public void onResponse(int callbackID, String response) {
         switch (callbackID) {
             case SEARCH_CALLBACK: {
-                Log.d("RESPONSE ---->",response);
-                if(response.equals(MESSAGE_ERROR))
-                {
-                    activity.runOnUiThread(
-                            () ->
-                            {
-                                activity.getErrorTV().setText(MESSAGE_ERROR);
-                                activity.getErrorTV().setVisibility(View.VISIBLE);
-                            }
-                    );
-                }else
-                {
+                    Log.d("RESPONSE ---->",response);
                     Gson gson = new Gson();
-                    Domain domain = gson.fromJson(response, Domain.class);
-                    activity.runOnUiThread(
-                            () ->
-                            {
-                                    activity.getWaitingTV().setVisibility(View.GONE);
-                                    activity.getErrorTV().setVisibility(View.GONE);
-                                activity.getProgressBar().setVisibility(View.GONE);
+                    try{
+                         domain = gson.fromJson(response, Domain.class);
 
-                                activity.getDomainInfoCL().setVisibility(View.VISIBLE);
-                                    activity.getDomainTitleTV().setText(domain.getTitle());
-                                    activity.getDomainSslGradeTV().setText(domain.getSsl_grade());
-                                    activity.getDomainPreviousSslGradeTV().setText(domain.getPrevious_ssl_grade());
-                                    activity.getDomainIsDownTV().setText(domain.isIs_down()+"");
-                                    activity.getDomainServersChangedTV().setText(domain.isServers_changed()+"");
-                                    Glide.with(activity).load(domain.getLogo() ).centerCrop().into(activity.getDomainIV());
-                                    serverAdapter = new ServerAdapter();
-                                    activity.getServersLV().setAdapter(serverAdapter);
-                                    serverAdapter.setServers(domain.getServers());
-                                    activity.getSearchDomainBtn().setEnabled(true);
-
-                            }
-                    );
+                    }catch(Exception e)
+                    {
+                        String error = gson.fromJson(response, String.class);
+                        setError(error);
+                        break;
+                    }
+                  setInfo();
                 }
-
-
                 break;
             }
-        }
 
+    }
+
+    public void setInfo()
+    {
+        activity.runOnUiThread(
+                () ->
+                {
+                    activity.getProgressBar().setVisibility(View.GONE);
+                    activity.getWaitingTV().setVisibility(View.GONE);
+                    activity.getErrorTV().setVisibility(View.GONE);
+                    activity.getProgressBar().setVisibility(View.GONE);
+                    activity.getDomainInfoCL().setVisibility(View.VISIBLE);
+                    activity.getDomainTitleTV().setText(domain.getTitle());
+                    activity.getDomainSslGradeTV().setText(domain.getSsl_grade());
+                    activity.getDomainPreviousSslGradeTV().setText(domain.getPrevious_ssl_grade());
+                    activity.getDomainIsDownTV().setText(domain.isIs_down()+"");
+                    activity.getDomainServersChangedTV().setText(domain.isServers_changed()+"");
+                    Glide.with(activity).load(domain.getLogo() ).centerCrop().into(activity.getDomainIV());
+                    serverAdapter = new ServerAdapter();
+                    activity.getServersLV().setAdapter(serverAdapter);
+                    serverAdapter.setServers(domain.getServers());
+                    activity.getSearchDomainBtn().setEnabled(true);
+                }
+        );
+    }
+
+    public void setError(String messageError) {
+        activity.runOnUiThread(
+                () ->
+                {
+                    activity.getProgressBar().setVisibility(View.GONE);
+                    activity.getWaitingTV().setVisibility(View.GONE);
+                    activity.getSearchDomainBtn().setEnabled(true);
+                    activity.getErrorTV().setText(messageError);
+                    activity.getErrorTV().setVisibility(View.VISIBLE);
+                });
     }
 }

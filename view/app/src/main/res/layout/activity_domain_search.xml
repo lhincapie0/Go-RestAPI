@@ -7,6 +7,17 @@
     android:background="@drawable/bg2"
     tools:context=".view.DomainSearchActivity">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="100dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
     <EditText
         android:id="@+id/domainET"
         android:layout_width="0dp"
@@ -15,10 +26,10 @@
         android:layout_marginTop="60dp"
         android:layout_marginEnd="10dp"
         android:ems="10"
-        android:fontFamily="@font/lato"
+        android:fontFamily="@font/roboto_regular"
         android:hint="@string/domainNameHint"
         android:inputType="textPersonName"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
 
         android:textSize="20sp"
         android:textStyle="bold"
@@ -32,9 +43,10 @@
         android:layout_height="48dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/button_bg"
-        android:fontFamily="@font/lato"
+        android:fontFamily="@font/roboto_regular"
         android:text="@string/getInfo"
         android:textColor="@android:color/white"
+        android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +60,7 @@
         android:fontFamily="@font/lato"
         android:text="www."
 
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/domainET"
@@ -62,7 +74,8 @@
         android:background="@drawable/bg2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/errorTV"
-        tools:layout_editor_absoluteX="16dp">
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_editor_absoluteX="20dp">
 
         <ImageView
             android:id="@+id/domainIV"
@@ -80,56 +93,59 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="10dp"
-            android:fontFamily="@font/lato"
+            android:fontFamily="@font/roboto_regular"
             android:text="TextView"
-            android:textAlignment="textStart"
+            android:textAlignment="center"
+
             android:textColor="@android:color/white"
             android:textSize="16sp"
-
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/domainIV"
+            app:layout_constraintBottom_toBottomOf="@+id/textView5"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/domainIV"
-            app:layout_constraintTop_toTopOf="@+id/domainIV" />
+            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintTop_toTopOf="@+id/textView5" />
 
         <TextView
             android:id="@+id/domainServersChangedTV"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:fontFamily="@font/lato"
-            android:text="TextView"
-            android:textColor="@android:color/white"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
 
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/textView6"
-            app:layout_constraintStart_toEndOf="@+id/textView6"
-            app:layout_constraintTop_toTopOf="@+id/textView6" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
         <TextView
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginBottom="10dp"
-            android:fontFamily="@font/lato"
+            android:fontFamily="@font/roboto_regular"
             android:text="@string/titleTV"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="20sp"
 
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/domainTitleTV"
-            app:layout_constraintStart_toEndOf="@+id/domainIV" />
+            app:layout_constraintBottom_toBottomOf="@+id/domainIV"
+            app:layout_constraintStart_toEndOf="@+id/domainIV"
+            app:layout_constraintTop_toTopOf="@+id/domainIV" />
 
         <TextView
             android:id="@+id/textView6"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="200dp"
-            android:fontFamily="@font/lato"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto_regular"
             android:text="@string/serversChangedTV"
             android:textColor="@android:color/white"
             android:textSize="16sp"
@@ -143,75 +159,67 @@
             android:id="@+id/textView7"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="200dp"
-            android:fontFamily="@font/lato"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto_regular"
+
             android:text="@string/sslGradeTV"
+            android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView6" />
+            app:layout_constraintTop_toBottomOf="@+id/domainServersChangedTV" />
 
         <TextView
             android:id="@+id/textView8"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="200dp"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto_regular"
+
             android:text="@string/prevSslGradeTV"
+            android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/domainSslGradeTV" />
 
+        <TextView
+            android:id="@+id/domainSslGradeTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
         <TextView
-            android:id="@+id/domainSslGradeTV"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:fontFamily="@font/lato"
-            android:text="TextView"
-            android:textAlignment="textStart"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/textView7"
-            app:layout_constraintStart_toEndOf="@+id/textView7"
-            app:layout_constraintTop_toTopOf="@+id/textView7" />
-
-        <TextView
             android:id="@+id/domainPreviousSslGradeTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:fontFamily="@font/lato"
-            android:text="TextView"
-            android:textColor="@android:color/white"
-
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/textView8"
-            app:layout_constraintStart_toEndOf="@+id/textView8"
-            app:layout_constraintTop_toTopOf="@+id/textView8" />
-
-        <TextView
-            android:id="@+id/textView9"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="200dp"
+            android:layout_marginEnd="20dp"
 
-            android:text="@string/serversDown"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+            android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -220,57 +228,59 @@
             app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
         <TextView
-            android:id="@+id/domainIsDownTV"
-            android:layout_width="wrap_content"
+            android:id="@+id/textView9"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:fontFamily="@font/lato"
-            android:text="TextView"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/serversDown"
+            android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/textView9"
-            app:layout_constraintStart_toEndOf="@+id/textView9"
-            app:layout_constraintTop_toTopOf="@+id/textView9" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="100dp"
-            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/domainPreviousSslGradeTV" />
+
+        <TextView
+            android:id="@+id/domainIsDownTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/lato"
+            android:fontFamily="@font/roboto_regular"
             android:text="SERVERS"
             android:textColor="@android:color/white"
-            android:textSize="25sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView9" />
+            app:layout_constraintTop_toBottomOf="@+id/domainIsDownTV" />
 
         <ListView
             android:id="@+id/serverLV"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:dividerHeight="0sp"
-            android:fastScrollAlwaysVisible="true"
-            android:fastScrollEnabled="true"
-            android:isScrollContainer="true"
-            android:keepScreenOn="true"
-            android:overScrollMode="always"
-            android:scrollbarAlwaysDrawHorizontalTrack="true"
-            android:verticalScrollbarPosition="defaultPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView4" />
@@ -287,9 +297,7 @@
         android:background="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchDomainBtn">
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toBottomOf="@+id/searchDomainBtn"/>
 
     <TextView
         android:id="@+id/waitingTV"
@@ -312,10 +320,14 @@
         android:id="@+id/errorTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/lato"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="@font/roboto_regular"
+        android:shadowColor="#DD0101"
         android:text="TextView"
-        android:textColor="@android:color/holo_red_dark"
-        android:textSize="16sp"
+        android:textColor="@android:color/secondary_text_light"
+        android:textSize="20sp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
